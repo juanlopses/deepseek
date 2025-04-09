@@ -1,53 +1,63 @@
 const express = require('express');
 const axios = require('axios');
+
 const app = express();
 const port = 3000;
 
+// Configura tu API key
+const API_KEY = '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';
+const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+
+// Middleware para parsear JSON
 app.use(express.json());
 
-// Configuración de la clave API (mejor práctica: usar variables de entorno)
-const API_KEY = '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';
-
-app.get('/preguntar', async (req, res) => {
-    try {
-        const pregunta = req.query.pregunta || "¿Cuál es el significado de la vida?";
-
-        const response = await axios({
-            method: 'post',
-            url: 'https://openrouter.ai/api/v1/chat/completions',
-            headers: {
-                'Authorization': `Bearer ${API_KEY}`,
-                'HTTP-Referer': 'http://localhost:3000',
-                'X-Title': 'Mi API',
-                'Content-Type': 'application/json'
-            },
-            data: {
-                model: "deepseek/deepseek-r1:free",
-                messages: [
-                    {
-                        role: "user",
-                        content: pregunta
-                    }
-                ]
-            }
-        });
-
-        const respuestaTexto = response.data.choices[0].message.content;
-        res.json({
-            exito: true,
-            respuesta: respuestaTexto
-        });
-
-    } catch (error) {
-        console.error('Error completo:', error.response?.data || error.message);
-        res.status(500).json({
-            exito: false,
-            error: error.response?.data?.message || error.message,
-            status: error.response?.status
-        });
+// Endpoint GET
+app.get('/chat', async (req, res) => {
+  try {
+    // Obtener el mensaje desde los query parameters
+    const message = req.query.message;
+    
+    if (!message) {
+      return res.status(400).json({ error: 'El parámetro "message" es requerido' });
     }
+
+    // Configurar la solicitud a la API de OpenRouter
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`
+      }
+    };
+
+    const data = {
+      model: 'deepseek/deepseek-r1:free',
+      messages: [
+        {
+          role: 'user',
+          content: message
+        }
+      ]
+    };
+
+    // Hacer la solicitud a la API externa
+    const response = await axios.post(API_URL, data, config);
+    
+    // Enviar la respuesta al cliente
+    res.json({
+      success: true,
+      response: response.data
+    });
+
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
 });
 
+// Iniciar el servidor
 app.listen(port, () => {
-    console.log(`Servidor corriendo en http://localhost:${port}`);
+  console.log(`Servidor corriendo en http://localhost:${port}`);
 });

@@ -1,0 +1,24 @@
+{
+  "name": "api-preguntas",
+  "version": "1.0.0",
+  "description": "API para hacer preguntas usando OpenRouter",
+  "main": "servidor.js",
+  "scripts": {
+    "start": "node servidor.js",
+    "dev": "nodemon servidor.js"
+  },
+  "keywords": [
+    "api",
+    "openrouter",
+    "nodejs"
+  ],
+  "author": "Tu Nombre",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "*",
+    "express": "*"
+  },
+  "devDependencies": {
+    "nodemon": "*"
+  }
+}
